@@ -1,5 +1,10 @@
 package com.emmanuel.inventory;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -12,10 +17,15 @@ public class Main {
         //              Dynamic Array
         List<Product> inventory = new ArrayList<>();
 
+        load(inventory);
+
         //              Default products in the inventory
-        inventory.add(new Product("001", "Laptop", "Electronic", 12000.00));
+        /*inventory.add(new Product("001", "Laptop", "Electronic", 12000.00));
         inventory.add(new Product("002", "Bread", "Food", 10.00));
-        inventory.add(new Product("003", "Wash Machine", "Home", 50000.00));
+        inventory.add(new Product("003", "Wash Machine", "Home", 50000.00));*/
+
+        //              Save the inventoy in a csv document
+
 
         boolean cycle = true;
 
@@ -74,7 +84,7 @@ public class Main {
                     System.out.println("Enter the id product to delete: ");
                     String id = sc.nextLine();
 
-                    // Search an object with the same id and then remove this object and adjust the list to the new length
+                    // Search an object with the same id, then remove this object and adjust the list to the new length
                     boolean removed = inventory.removeIf(product -> product.getId().equals(id));
 
                     if(removed){
@@ -87,7 +97,8 @@ public class Main {
                 }
 
                 case 5: {
-                    //          Quit
+                    //          Save and Quit
+                    save(inventory);
                     cycle = false;
                     break;
                 }
@@ -99,6 +110,58 @@ public class Main {
         } while (cycle);
     }
 
+    public static void save(List<Product> inventory){
+        //Create a direction called "inventory.csv"
+        Path path = Paths.get("inventory.csv");
+
+        //Convert from the Object to String
+        List<String> textData = new ArrayList<>();
+
+        for(Product p : inventory){
+            String line = p.getId() + "," + p.getName() + "," + p.getType() + "," + p.getCost();
+            textData.add(line);
+        }
+        try {
+            //Save the document
+            Files.write(path, textData,
+                    StandardOpenOption.CREATE, //Create if dont exist
+                    StandardOpenOption.TRUNCATE_EXISTING); //Delete if exist
+            System.out.println("Save successfully");
+        } catch (Exception e) {
+            //Print The Cause of the error
+            System.out.println("Error saving file");
+            e.printStackTrace();
+        }
+    }
+
+    public static void load(List<Product> inventory) {
+        Path path = Paths.get("inventory.csv");
+
+        if (Files.exists(path)){
+            try{
+                List<String> lines = Files.readAllLines(path);
+                for (String line : lines) {
+                    String[] parts = line.split(",");
+
+                    String id = parts[0];
+                    String name = parts[1];
+                    String type = parts[2];
+
+                    double cost = Double.parseDouble(parts[3]);
+
+                    Product p = new Product(id,name,type,cost);
+                    inventory.add(p);
+                }
+                System.out.println("Data load successfully");
+            } catch (IOException e) {
+                System.out.println("Error to load data");
+            }
+        }else {
+            System.out.println("Dont find the file, create a new empty data base");
+        }
+    }
+
+    // Main Menu
     public static void menu(){
         System.out.println("+--------------Menu------------+");
         System.out.println("|  1.-  Add product            |");
