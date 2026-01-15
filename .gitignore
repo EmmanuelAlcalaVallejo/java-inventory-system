@@ -1,4 +1,22 @@
+# Archivos compilados
 *.class
+
+# Carpetas de salida de IDEs
+out/
+bin/
+target/
+
+# Archivos de configuración de IDEs
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db*.class
 out/
 .idea/
 *.iml
